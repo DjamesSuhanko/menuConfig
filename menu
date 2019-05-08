@@ -1,0 +1,242 @@
+#!/bin/bash
+RED='\033[1;31m'
+NC='\033[0m'
+
+[ $(id -u) -gt 0 ] &&{
+    printf "Use \033[1;31msudo su\033[0m para virar root antes de executar esse programa. Saindo..." 
+    echo ""
+    exit 0 
+}
+
+mount -o remount,rw /
+
+dialogo=`which dialog`
+DIR_PH="/home/pi/menu"
+BLINK_DIR="/home/pi/blynk"
+LOG="/home/pi/menu/ph.log"
+WIFI_TARGET='/etc/wpa_supplicant/wpa_supplicant.conf'
+
+export DIALOGRC=$DIR_PH/theme.cfg
+mkdir -p $DIR_PH
+
+echo "[" $(date) "] Configurador iniciado " >>$LOG
+
+menuUpdate(){
+    $dialogo --stdout --msgbox "O menu sera interrompido apos atualizacao e devera ser executado novamente." 0 0
+    rm -rf menuConfig
+    git clone $GIT_MENU_URL
+    mv menuConfig/menu .
+    rm -rf menuConfig
+}
+
+emailConfig(){
+    EMAIL=`$dialogo --stdout --title "seu_emai@gmail.com" --inputbox "E-mail" 0 0`
+    [ $? -eq 0 ] || return
+    SENHA=`$dialogo --stdout --title "Senha do email" --passwordbox "Senha" 0 0`
+    [ $? -eq 0 ] || return
+
+    echo "mail.smtp.auth=true
+    mail.smtp.starttls.enable=true
+    mail.smtp.host=smtp.gmail.com
+    mail.smtp.port=587
+    mail.smtp.username=$EMAIL
+    mail.smtp.password=$SENHA" >$BLINK_DIR/mail.properties
+    $dialog --stdout --title "A T E N C A O" --textbox $DIR_PH/email.hlp 0 0
+}
+checkHealth(){
+    log "Verificando conectividade"
+    IS_GOING_OUT=`ping -c1 uol.com.br|egrep '0% packet loss'|wc -c`
+    [ $IS_GOING_OUT -gt 0 ] || {
+        log "Sem conectividade"
+        $dialogo --stdout --msgbox "Sem conectividade com a Internet (verifique o IP no menu principal)." 0 0
+	exit 0
+    }
+    log "Conectividade: Ok"
+    $dialogo --stdout --msgbox "Conectividade: OK" 0 0 
+}
+
+log(){
+    #log "Analisando log"
+    echo $(date) "$1" >>$LOG
+}
+
+WiFi(){
+    log "configurando WiFi"
+    SSID=$($dialogo --stdout --title 'SSID' \
+	    --inputbox 'Entre com o nome da rede 2.4G' 0 0 )
+    [ $? -eq 0 ] || return
+    PSK=$($dialogo --stdout --title 'Senha' \
+	    --passwordbox 'Digite a senha' 0 0 )
+    [ $? -eq 0 ] || return
+
+    echo "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev" >$WIFI_TARGET
+    echo "update_config=1" >>$WIFI_TARGET
+    echo "" >>$WIFI_TARGET
+    echo "network={" >>$WIFI_TARGET
+    echo "    ssid=\"$SSID\"" >> $WIFI_TARGET
+    echo "    psk=\"$PSK\"" >>$WIFI_TARGET
+    echo "}" >>$WIFI_TARGET
+    
+    log "Reiniciando o sistema [WiFi configurado]"
+    showWiFiConfig
+    $dialogo --stdout --msgbox "O sistema sera reiniciado agora" 0 0
+    #shutdown -r now
+}
+
+runBroker(){
+    log "Executando broker"
+    ALREADY_RUNNING=`ps ax|grep java8|egrep -v grep|wc -l`
+    [ $ALREADY_RUNNING -gt 0 ] && {
+        log "Broker ja rodando"
+        $dialogo --stdout --title "A T E N C A O" --msgbox "Ja existe uma instancia. Reiniciar processo?" 0 0
+	[ $? -eq 0 ] || exit 0 
+    }
+    log "Reiniciando broker"
+    kill -9 $(pgrep java)
+    mkdir -p /home/pi/ph/Data
+    
+    java -jar $BLINK_SERVER -dataFolder /home/pi/ph/Data 1>&2- &
+    for i in $(seq 0 5 100) ; do sleep 1; echo $i | $dialogo --gauge "Aguarde" 10 70 0; done
+
+}
+
+openSSH(){
+    log "Iniciando/Parando SSH"
+    DO_THAT="start"
+    SSH_MSG="iniciado"
+
+    SSH_IS_RUNNING=`netstat -naut|awk '{print $4}'|egrep ':22$'|wc l`
+    [ $SSH_IS_RUNNING -gt 0 ] && {
+       DO_THAT="stop"
+       SSH_MSG="parado"
+    } 
+
+    ST=`echo $DO_THAT|wc -c`
+    if [ $ST -eq 4 ]; then
+	    log"Parando SSH"
+    else
+	    log"Iniciando SSH"
+    fi
+
+    service ssh $DO_THAT
+    $dia#log--stdout --msgbox "Servico $SSH_MSG." 0 0
+}
+
+myIP(){
+    log "Consultando IP publico"
+    # instalar o pacote dnsutils
+    #egrep -i "Meu ip é" index.html|awk -F\> '{print $2}'|awk -F\< '{print $1}' |cut -f4- -d" "
+    MY_IP_IS=`dig +short myip.opendns.com @resolver1.opendns.com`
+    SIZE=`echo $MY_IP_IS|wc -c`
+    [ $SIZE -lt 6 ] && MY_IP_IS="Sem retorno (esta conectado mesmo?)" 
+    #log"Checagem do IP publico: $MY_IP_IS"
+    $dialogo --stdout --title "IP publico" --msgbox "$MY_IP_IS" 0 0
+}
+
+myLocalIP(){
+    MY_LAN_IP=`ifconfig wlan0|egrep inet|egrep -v inet6|awk '{print $2}'`
+    SIZE_LAN_IP=`echo $MY_LAN_IP|wc -c`
+    [ $SIZE_LAN_IP -lt 5 ] && {
+        MY_LAN_IP="Sem IP na interface (configurou o WiFi?)"
+    }
+    log "Checagem do IP local: $SMY_LAN_IP"
+    $dialogo --stdout --title "IP local" --msgbox "$MY_LAN_IP" 0 0
+}
+
+showLog(){
+    #log"Visualizador de logs"
+    $dialogo --stdout --title "Visualizador de log" --textbox $LOG 0 0
+    clear
+}
+
+showWiFiConfig(){
+    log "Exibindo configuracoes WiFi"
+    $dialogo --stdout --title "Configuracoes WiFi" --textbox /etc/wpa_supplicant/wpa_supplicant.conf 0 0
+}
+
+testDNS(){
+    log "Teste de DNS"
+    REDE_IS="DNS respondendo OK"
+    IS_GOING_OUT=`ping -c1 8.8.8.8|egrep '0% packet loss'|wc -c`
+    [ $IS_GOING_OUT -gt 0 ] || {
+        log "Rede fora de alcance"
+	REDE_IS="Rede fora de alcance"
+    }
+    $dialogo --stdout --title "Teste de DNS" --msgbox "$REDE_IS" 0 0 
+
+    nslookup uol.com.br |sed -re 's/\t/ /g' >dns.tmp
+    $dialogo --stdout --title "Resolucao" --textbox dns.tmp 0 0
+    rm -f dns.tmp
+}
+
+dnsConfig(){
+    log "Configuracao de DNS"
+    $dialogo --stdout --title "Configurar DNS" --yesno "Usar do Google?" 0 0
+    if [ $? -eq 0 ]; then
+	log "Usando DNS do Google"
+        echo "nameserver 8.8.8.8" >/etc/resolv.conf
+	echo "nameserver 8.8.4.4" >>/etc/resolv.conf
+    else
+	log "Entrada de DNS manual"
+	$dialogo --stdout --title "DNS primario" --inputbox "IP: " 0 0 >dns1.tmp
+	echo "nameserver " $(cat dns1.tmp) >/etc/resolv.conf
+	rm -f dns1.tmp
+
+	$dialogo --stdout --title "DNS secundario" --inputbox "IP: " 0 0 >dns2.tmp
+	echo "nameserver " $(cat dns2.tmp) >>/etc/resolv.conf
+	rm -f dns2.tmp
+
+    fi
+
+    $dialogo --stdout --msgbox "Concluido. Testaremos o DNS agora." 0 0
+    testDNS
+}
+
+dnsShow(){
+    log "Mostrando DNS atual"
+    $dialogo --stdout --title "DNS atual" --textbox /etc/resolv.conf 0 0
+}
+
+helpMe(){
+    log "Mostrando menu de ajuda"
+    $dialogo --stdout --title "Menu de ajuda" --textbox $DIR_PH/ph_help.txt 0 0
+}
+
+while true; do
+
+    RES=$($dialogo --stdout --title "Configurador" --nocancel --menu "Seta para selecao (^ v), [Tab] para botao" 0 0 0 \
+    wifi 'Configura o WiFi' \
+    health 'Exibe status da Internet' \
+    broker 'Inicia o broker se estiver parado' \
+    remote 'Para/Inicia conexao remota' \
+    publicIP 'Exibe o IP publico' \
+    localIP 'Exibe o IP local' \
+    senha 'Troca a senha de usuario' \
+    logs 'Exibe os logs' \
+    show 'Mostra as configuracoes de WiFi (cuidado com a senha)' \
+    dns 'Teste de DNS (Ultimo caso)' \
+    confDNS 'Configurar DNS' \
+    showDNS 'Mostra o DNS configurado' \
+    sair 'Sai do programa' \
+    mail 'Configura e-mail para o Blynk' \
+    ajuda 'Exibe ajuda dos itens')
+
+    case $RES in
+        wifi) WiFi ;;
+        health) checkHealth ;;
+        broker) runBroker ;;
+        remote) openSSH ;;
+        publicIP) myIP ;;
+        localIP) myLocalIP ;;
+        senha) passwd pi ;;
+        logs) showLog ;;
+        show) showWiFiConfig ;;
+        dns) testDNS ;;
+        confDNS) dnsConfig ;;
+        showDNS) dnsShow ;;
+        ajuda) helpMe ;;
+	mail) emailConfig ;;
+	sair) break;;
+    esac
+
+done
