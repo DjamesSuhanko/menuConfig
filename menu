@@ -22,11 +22,27 @@ mkdir -p $DIR_PH
 
 echo "[" $(date) "] Configurador iniciado " >>$LOG
 
+ntpConfig(){
+    RPI_IP=`$dialogo --stdout --title "Entre com o IP do Raspberry" --inputbox "IP" 0 0`
+    [ $? -eq 0 ] || return
+    $dialogo --stdout --yesno "Ja foi feita essa configuracao anteriormente?" 0 0
+    
+    if [ $? -eq 0 ]; then
+        SIZE_OF=`wc -l /etc/ntp.conf`
+	head -n $SIZE_OF /etc/ntp.conf >>ca
+        mv ca /etc/ntp.conf
+	echo "server $SIZE_OF prefer" >>/etc/ntp.conf
+	rm -f ca
+    else
+	echo "server $SIZE_OF prefer" >>/etc/ntp.conf
+    fi
+}
+
 menuUpdate(){
     $dialogo --stdout --msgbox "O menu sera interrompido apos atualizacao e devera ser executado novamente." 0 0
     rm -rf menuConfig
     git clone $GIT_MENU_URL
-    mv menuConfig/menu .
+    mv menuConfig/menu /home/pi/menu/
     rm -rf menuConfig
     exit 0 
 }
@@ -219,9 +235,10 @@ while true; do
     dns 'Teste de DNS (Ultimo caso)' \
     confDNS 'Configurar DNS' \
     showDNS 'Mostra o DNS configurado' \
-    sair 'Sai do programa' \
     mail 'Configura e-mail para o Blynk' \
     update 'Atualiza esse programa' \
+    dataHora 'Configura o servidor de horas' \
+    sair 'Sai do programa' \
     ajuda 'Exibe ajuda dos itens')
 
     case $RES in
@@ -240,6 +257,7 @@ while true; do
         ajuda) helpMe ;;
 	mail) emailConfig ;;
 	update) menuUpdate ;; 
+	dataHora) ntpConfig ;;
 	sair) break;;
     esac
 
