@@ -15,6 +15,7 @@ DIR_PH="/home/pi/menu"
 BLINK_DIR="/home/pi/blynk"
 LOG="/home/pi/menu/ph.log"
 WIFI_TARGET='/etc/wpa_supplicant/wpa_supplicant.conf'
+GIT_MENU_URL="https://github.com/DjamesSuhanko/menuConfig.git" 
 
 export DIALOGRC=$DIR_PH/theme.cfg
 mkdir -p $DIR_PH
@@ -27,6 +28,7 @@ menuUpdate(){
     git clone $GIT_MENU_URL
     mv menuConfig/menu .
     rm -rf menuConfig
+    exit 0 
 }
 
 emailConfig(){
@@ -219,6 +221,7 @@ while true; do
     showDNS 'Mostra o DNS configurado' \
     sair 'Sai do programa' \
     mail 'Configura e-mail para o Blynk' \
+    update 'Atualiza esse programa' \
     ajuda 'Exibe ajuda dos itens')
 
     case $RES in
@@ -236,6 +239,7 @@ while true; do
         showDNS) dnsShow ;;
         ajuda) helpMe ;;
 	mail) emailConfig ;;
+	update) menuUpdate ;; 
 	sair) break;;
     esac
 
