@@ -1,0 +1,57 @@
+[WiFi]
+Configura o WiFi.
+Sera solicitado o nome da rede (SSID) e a senha (PSK).
+
+[healt]
+Mostra o estado da conexao diretamente com a Internet.
+Se nao houver conexao, faca os testes:
+- show
+- localIP
+- publicIP
+- showDNS
+- dns
+
+Sem conectividade com a Internet o sistema deve funcionar.
+Se for desejado consultar o app do celular de fora, sera necessario.
+
+[broker]
+Inicia o servidor Blynk para receber conexoes do app e para a
+comunicacao inicial dos dispositivos.
+
+[remote]
+Para ou inicia o servidor SSH para manutencao remota. Se habilita-lo,
+desative-o apos o uso.
+Opte por trocar a senha antes de fornecer a conexao, depois troque-a
+novamente para manter o sigilo e seguranca.
+
+[publicIP]
+Consulta qual o IP publico que esta sendo utilizado na Internet.
+Trata-se de ferramenta de diagnostico para testar conectividade.
+
+[localIP]
+Consulta qual o IP local que esta sendo utilizado na Interface.
+Trata-se de ferramenta de diagnostico para testar a configuracao WiFi.
+
+[senha]
+Troca a senha do usuario pi. Root acessado por sudo su.
+
+[logs]
+Exibe logs do configurador.
+
+[show]
+Mostra as configuracoes do WiFi (usuario e senha tambem, seja cauteloso).
+
+[confDNS]
+Configura servidor DNS, caso haja problema na resolucao de nomes.
+O teste de DNS acontece apos a configuracao, automaticamente.
+Se apos o teste continuar falhando, junte as informacoes:
+- O WiFi esta correto?
+- Tenho IP local?
+- Tenho IP publico?
+
+[showDNS]
+Exibe as configuracoes atuais de DNS. Bom ver antes de reconfigurar.
+
+[ajuda]
+Exibe esse menu.
+
