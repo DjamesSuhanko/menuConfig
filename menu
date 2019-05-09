@@ -23,22 +23,28 @@ mkdir -p $DIR_PH
 echo "[" $(date) "] Configurador iniciado " >>$LOG
 
 ntpConfig(){
+    log "Configurando NTP"
     RPI_IP=`$dialogo --stdout --title "Entre com o IP do Raspberry" --inputbox "IP" 0 0`
     [ $? -eq 0 ] || return
     $dialogo --stdout --yesno "Ja foi feita essa configuracao anteriormente?" 0 0
     
+    log "Rpi IP: $RPI_IP"
+
     if [ $? -eq 0 ]; then
         SIZE_OF=`wc -l /etc/ntp.conf`
-	head -n $SIZE_OF /etc/ntp.conf >>ca
-        mv ca /etc/ntp.conf
+	head -n $SIZE_OF /etc/ntp.conf >>/dev/shm/ca
+        mv /dev/shm/ca /etc/ntp.conf
 	echo "server $SIZE_OF prefer" >>/etc/ntp.conf
-	rm -f ca
+	rm -f /dev/shm/ca
     else
 	echo "server $SIZE_OF prefer" >>/etc/ntp.conf
     fi
+    log "`tail -n1 /etc/ntp.conf`"
+    service ntp restart
 }
 
 menuUpdate(){
+    log "Buscando atualizacao"
     $dialogo --stdout --msgbox "O menu sera interrompido apos atualizacao e devera ser executado novamente." 0 0
     rm -rf menuConfig
     git clone $GIT_MENU_URL
@@ -48,6 +54,7 @@ menuUpdate(){
 }
 
 emailConfig(){
+    echo "Configurando e-mail"
     EMAIL=`$dialogo --stdout --title "seu_emai@gmail.com" --inputbox "E-mail" 0 0`
     [ $? -eq 0 ] || return
     SENHA=`$dialogo --stdout --title "Senha do email" --passwordbox "Senha" 0 0`
@@ -59,6 +66,9 @@ emailConfig(){
     mail.smtp.port=587
     mail.smtp.username=$EMAIL
     mail.smtp.password=$SENHA" >$BLINK_DIR/mail.properties
+    
+    log "$BLINK_DIR/mail.properties"
+    
     $dialog --stdout --title "A T E N C A O" --textbox $DIR_PH/email.hlp 0 0
 }
 checkHealth(){
