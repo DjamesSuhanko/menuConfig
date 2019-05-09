@@ -78,7 +78,7 @@ checkHealth(){
     [ $IS_GOING_OUT -gt 0 ] || {
         log "Sem conectividade"
         $dialogo --stdout --msgbox "Sem conectividade com a Internet (verifique o IP no menu principal)." 0 0
-	exit 0
+	return
     }
     log "Conectividade: Ok"
     $dialogo --stdout --msgbox "Conectividade: OK" 0 0 
@@ -122,13 +122,13 @@ runBroker(){
     [ $ALREADY_RUNNING -gt 0 ] && {
         log "Broker ja rodando"
         $dialogo --stdout --title "A T E N C A O" --msgbox "Ja existe uma instancia. Reiniciar processo?" 0 0
-	[ $? -eq 0 ] || exit 0 
+	[ $? -eq 0 ] || return 
     }
     log "Reiniciando broker"
     kill -9 $(pgrep java)
-    mkdir -p /home/pi/ph/Data
+    mkdir -p $BLINK_DIR/data
     
-    java -jar $BLINK_SERVER -dataFolder /home/pi/ph/Data 1>&2- &
+    java -jar $BLINK_SERVER -dataFolder $BLYNK_DIR/data 1>&2- &
     for i in $(seq 0 5 100) ; do sleep 1; echo $i | $dialogo --gauge "Aguarde" 10 70 0; done
 
 }
