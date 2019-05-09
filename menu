@@ -113,6 +113,10 @@ WiFi(){
 
 runBroker(){
     log "Executando broker"
+    [ -f /home/pi/Blynk/mail.properties ] || {
+        $dialogo --stdout --msgbox "Configure o email primeiro" 0 0
+        return
+    }
     ALREADY_RUNNING=`ps ax|grep java8|egrep -v grep|wc -l`
     [ $ALREADY_RUNNING -gt 0 ] && {
         log "Broker ja rodando"
