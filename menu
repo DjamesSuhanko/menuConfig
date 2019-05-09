@@ -48,8 +48,9 @@ menuUpdate(){
     $dialogo --stdout --msgbox "O menu sera interrompido apos atualizacao e devera ser executado novamente." 0 0
     rm -rf menuConfig
     git clone $GIT_MENU_URL
-    mv menuConfig/menu /home/pi/menu/
+    mv menuConfig/* /home/pi/menu/
     rm -rf menuConfig
+    rm -f /home/pi/menu/READ*
     exit 0 
 }
 

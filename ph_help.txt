@@ -32,7 +32,10 @@ Trata-se de ferramenta de diagnostico para testar conectividade.
 Consulta qual o IP local que esta sendo utilizado na Interface.
 Trata-se de ferramenta de diagnostico para testar a configuracao WiFi.
 
-[senha]
+[senhaConf]
+Troca a senha do configurador.
+
+[senhaPi]
 Troca a senha do usuario pi. Root acessado por sudo su.
 
 [logs]
@@ -40,6 +43,9 @@ Exibe logs do configurador.
 
 [show]
 Mostra as configuracoes do WiFi (usuario e senha tambem, seja cauteloso).
+
+[dns]
+Teste de DNS para quando tiver suspeita de resolucao de nomes.
 
 [confDNS]
 Configura servidor DNS, caso haja problema na resolucao de nomes.
@@ -51,6 +57,45 @@ Se apos o teste continuar falhando, junte as informacoes:
 
 [showDNS]
 Exibe as configuracoes atuais de DNS. Bom ver antes de reconfigurar.
+
+[mail]
+Para rodar o servidor Blynk e ser possivel criar tokens, precisa existir
+uma conta do Gmail configurada no sistema.
+Depois de configurar a conta, acesse a area de configuracao o link 
+sugerido e clique em PERMITIR APLICATIVOS MENOS SEGUROS.
+O Gmail dara permissao de acesso a conta.
+Essa conta deve ser exclusiva para o Blynk e deve conter uma senha segura.
+
+[update]
+Atualiza esse programa de configuracao. Para que a nova configuracao seja
+assumida, o programa se encerra e deve-se fazer o login novamente.
+
+[dataHora]
+Configura o servidor NTP. Fundamental fazer essa configuracao para o ajuste
+de hora. Entre com o IP do Raspberry quando solicitado. Anote-o previamente
+atraves do tem localIP do menu.
+Esse IP deve ser configurado no roteador WiFi para ser estatico, colocando-o
+no roteador nas configuracoes de DHCP. No roteador sera necessario configurar
+o MAC o Raspberry. Pegue o MAC no item MAC do menu.
+
+[MAC]
+Exibe o MAC address do Raspbery. O MAC eh o endereco fisico da placa e serve
+para indicar ao roteador WiFi que quando essa placa solicitar IP, deve ser
+fornecido o IP X (o que esta na placa ou um escolhido). Se o IP fixo for
+diferente daquele que ja esta na placa, reinicie o roteador WiFi apos adicionar
+o MAC e IP fixo. Assim que o roteador voltar a funcionar, reinicie o raspberry.
+
+[reiniciar]
+Reinicia o Raspberry. Faca sempre apos qualquer configuracao para garantir as
+mudancas. Se mudar a configuracao do WiFi, certifique-se de ter colocado as
+credenciais corretas.
+
+[desligar]
+Desliga o Raspberry. Leva aproximadamente 35 segundos para que o desligamento
+ocorra. Evite desligar a alimentacao antes disso.
+
+[sair]
+Sai do configurador, deslogando o usuario.
 
 [ajuda]
 Exibe esse menu.
