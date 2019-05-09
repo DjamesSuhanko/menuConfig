@@ -34,7 +34,7 @@ ntpConfig(){
         SIZE_OF=`wc -l /etc/ntp.conf`
 	head -n $SIZE_OF /etc/ntp.conf >>/dev/shm/ca
         mv /dev/shm/ca /etc/ntp.conf
-	echo "server $SIZE_OF prefer" >>/etc/ntp.conf
+	echo "server $RPI_IP prefer" >>/etc/ntp.conf
 	rm -f /dev/shm/ca
     else
 	echo "server $SIZE_OF prefer" >>/etc/ntp.conf
