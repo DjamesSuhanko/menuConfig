@@ -31,7 +31,7 @@ ntpConfig(){
     log "Rpi IP: $RPI_IP"
 
     if [ $? -eq 0 ]; then
-        SIZE_OF=`wc -l /etc/ntp.conf`
+        SIZE_OF=`wc -l /etc/ntp.conf|awk ''{print $1}`
 	head -n $[$SIZE_OF-1] /etc/ntp.conf >>/dev/shm/ca
         mv /dev/shm/ca /etc/ntp.conf
 	echo "server $RPI_IP prefer" >>/etc/ntp.conf
