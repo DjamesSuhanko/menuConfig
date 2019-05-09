@@ -239,7 +239,8 @@ while true; do
     remote 'Para/Inicia conexao remota' \
     publicIP 'Exibe o IP publico' \
     localIP 'Exibe o IP local' \
-    senha 'Troca a senha de usuario' \
+    senhaConf 'Troca a senha do configurador ' \
+    senhaPi 'Trocar a senha do usuario Pi' \
     logs 'Exibe os logs' \
     show 'Mostra as configuracoes de WiFi (cuidado com a senha)' \
     dns 'Teste de DNS (Ultimo caso)' \
@@ -258,7 +259,8 @@ while true; do
         remote) openSSH ;;
         publicIP) myIP ;;
         localIP) myLocalIP ;;
-        senha) passwd pi ;;
+        senhaConf) passwd configurar ;;
+        senhaPi) passwd pi ;;
         logs) showLog ;;
         show) showWiFiConfig ;;
         dns) testDNS ;;
