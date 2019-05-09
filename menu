@@ -249,6 +249,8 @@ while true; do
     mail 'Configura e-mail para o Blynk' \
     update 'Atualiza esse programa' \
     dataHora 'Configura o servidor de horas' \
+    reiniciar 'Reinicia com as novas configuracoes' \
+    desligar 'Desliga o sistema (aprox. 35 segundos)' \
     sair 'Sai do programa' \
     ajuda 'Exibe ajuda dos itens')
 
@@ -266,6 +268,8 @@ while true; do
         dns) testDNS ;;
         confDNS) dnsConfig ;;
         showDNS) dnsShow ;;
+        reiniciar) shutdown -r now ;;
+        desligar) shutdown -h now ;;
         ajuda) helpMe ;;
 	mail) emailConfig ;;
 	update) menuUpdate ;; 
