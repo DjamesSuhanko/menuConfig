@@ -37,7 +37,7 @@ ntpConfig(){
 	echo "server $RPI_IP prefer" >>/etc/ntp.conf
 	rm -f /dev/shm/ca
     else
-	echo "server $SIZE_OF prefer" >>/etc/ntp.conf
+	echo "server $[$SIZE_OF-1] prefer" >>/etc/ntp.conf
     fi
     log "`tail -n1 /etc/ntp.conf`"
     service ntp restart
