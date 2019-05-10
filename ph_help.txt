@@ -65,6 +65,7 @@ Depois de configurar a conta, acesse a area de configuracao o link
 sugerido e clique em PERMITIR APLICATIVOS MENOS SEGUROS.
 O Gmail dara permissao de acesso a conta.
 Essa conta deve ser exclusiva para o Blynk e deve conter uma senha segura.
+https://myaccount.google.com/lesssecureapps
 
 [update]
 Atualiza esse programa de configuracao. Para que a nova configuracao seja

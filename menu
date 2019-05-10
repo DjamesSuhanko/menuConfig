@@ -22,6 +22,15 @@ mkdir -p $DIR_PH
 
 echo "[" $(date) "] Configurador iniciado " >>$LOG
 
+resizeFS(){
+    raspi-config --expand-rootfs &
+    $dialogo --stdout --title "A T E N C A O" --msgbox "Isso deve levar um tempo, seja paciente" 0 0
+    for i in $(seq 0 2 100) ; do sleep 1; echo $i | $dialogo --stdout --gauge "Aguarde" 10 70 0; done
+    partprobe
+    $dialogo --stdout --title "REINICIAR SISTEMA" --yesno "Importante reiniciar sistema agora. Podemos seguir?" 0 0
+    [ $? -eq 0 ] && shutdown -r now
+}
+
 ntpConfig(){
     log "Configurando NTP"
     RPI_IP=`$dialogo --stdout --title "Entre com o IP do Raspberry" --inputbox "IP" 0 0`
@@ -129,7 +138,7 @@ runBroker(){
     mkdir -p $BLINK_DIR/data
     
     java -jar $BLINK_SERVER -dataFolder $BLYNK_DIR/data 1>&2- &
-    for i in $(seq 0 5 100) ; do sleep 1; echo $i | $dialogo --gauge "Aguarde" 10 70 0; done
+    for i in $(seq 0 5 100) ; do sleep 1; echo $i | $dialogo --stdout --gauge "Aguarde" 10 70 0; done
 
 }
 
@@ -256,6 +265,7 @@ while true; do
     dataHora 'Configura o servidor de horas' \
     reiniciar 'Reinicia com as novas configuracoes' \
     desligar 'Desliga o sistema (aprox. 35 segundos)' \
+    maxSys 'Maximizar espaco do sistema' \
     sair 'Sai do programa' \
     ajuda 'Exibe ajuda dos itens')
 
@@ -275,6 +285,7 @@ while true; do
         showDNS) dnsShow ;;
         reiniciar) shutdown -r now ;;
         desligar) shutdown -h now ;;
+        maxSys) resizeFS ;;
         ajuda) helpMe ;;
 	mail) emailConfig ;;
 	update) menuUpdate ;; 
