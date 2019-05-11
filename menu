@@ -22,6 +22,19 @@ mkdir -p $DIR_PH
 
 echo "[" $(date) "] Configurador iniciado " >>$LOG
 
+brokerStatus(){
+    MESSAGE="Broker em execucao"
+
+    BROKER_IS_RUNNING=`ps ax|grep server-0.41.5-java8.jar|egrep -v 'grep'|wc -c`
+    [ $BROKER_IS_RUNNING -gt 10 ] || MESSAGE="Broker não rodando"
+    $dialogo --stdout --title "Status do servidor Blynk" --sleep 5 --infobox "$MESSAGE" 0 0
+}
+
+brokerCron(){
+ echo "@reboot java -jar /home/pi/server-0.41.5-java8.jar -dataFolder /home/pi/Blynk &" >> /var/spool/cron/crontabs/root
+ $dialogo --stdout --title "Autostart" --sleep 5 --infobox "Reinicie e veja o status para confirmar a autoexecucao do servidor Blynk" 0 0
+}
+
 resizeFS(){
     raspi-config --expand-rootfs &
     $dialogo --stdout --title "A T E N C A O" --msgbox "Isso deve levar um tempo, seja paciente" 0 0
@@ -250,6 +263,8 @@ while true; do
     wifi 'Configura o WiFi' \
     health 'Exibe status da Internet' \
     broker 'Inicia o broker se estiver parado' \
+    brokerStat 'Verifica se o servidor esta rodando' \
+    agendaBroker 'Instala a autoexecucao do servidor' \
     remote 'Para/Inicia conexao remota' \
     publicIP 'Exibe o IP publico' \
     localIP 'Exibe o IP local' \
@@ -273,6 +288,8 @@ while true; do
         wifi) WiFi ;;
         health) checkHealth ;;
         broker) runBroker ;;
+        brokerStat) brokerStatus ;;
+        agendaBroker) brokerCron ;;
         remote) openSSH ;;
         publicIP) myIP ;;
         localIP) myLocalIP ;;
