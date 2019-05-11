@@ -26,7 +26,7 @@ brokerStatus(){
     MESSAGE="Broker em execucao"
 
     BROKER_IS_RUNNING=`ps ax|grep server-0.41.5-java8.jar|egrep -v 'grep'|wc -c`
-    [ $BROKER_IS_RUNNING -gt 10 ] || MESSAGE="Broker não rodando"
+    [ $BROKER_IS_RUNNING -gt 10 ] || MESSAGE="Broker nao rodando"
     $dialogo --stdout --title "Status do servidor Blynk" --sleep 5 --infobox "$MESSAGE" 0 0
 }
 
