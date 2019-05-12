@@ -12,11 +12,11 @@ mount -o remount,rw /
 
 dialogo=`which dialog`
 DIR_PH="/home/pi/menu"
-BLINK_DIR="/home/pi/Blynk"
+BLYNK_DIR="/home/pi/Blynk"
 LOG="/home/pi/menu/ph.log"
 WIFI_TARGET='/etc/wpa_supplicant/wpa_supplicant.conf'
 GIT_MENU_URL="https://github.com/DjamesSuhanko/menuConfig.git" 
-BLYNK_SERVER="$(echo -n $BLYNK_DIR)/server-0.41.5-java8.jar"
+BLYNK_SERVER=`echo $BLYNK_DIR/server-0.41.5-java8.jar|cut -f1 -d" "`
 
 export DIALOGRC=$DIR_PH/theme.cfg
 mkdir -p $DIR_PH
@@ -89,9 +89,9 @@ emailConfig(){
     mail.smtp.host=smtp.gmail.com
     mail.smtp.port=587
     mail.smtp.username=$EMAIL
-    mail.smtp.password=$SENHA" >$BLINK_DIR/mail.properties
+    mail.smtp.password=$SENHA" >$BLYNK_DIR/mail.properties
     
-    log "$BLINK_DIR/mail.properties"
+    log "$BLYNK_DIR/mail.properties"
     
     $dialog --stdout --title "A T E N C A O" --textbox $DIR_PH/email.hlp 0 0
 }
@@ -137,7 +137,7 @@ WiFi(){
 
 runBroker(){
     log "Executando broker"
-    [ -f $BLINK_DIR/mail.properties ] || {
+    [ -f $BLYNK_DIR/mail.properties ] || {
         $dialogo --stdout --msgbox "Configure o email primeiro" 0 0
         return
     }
@@ -149,7 +149,7 @@ runBroker(){
     }
     log "Iniciando broker"
     kill -9 $(pgrep java)
-    mkdir -p $BLINK_DIR/data
+    mkdir -p $BLYNK_DIR/data
    
     [ -f $BLYNK_SERVER ] || {
         $dialogo --stdout --title "A N A L I S A R" --msgbox "$BLYNK_SERVER nao encontrado. Abortando..." 0 0
