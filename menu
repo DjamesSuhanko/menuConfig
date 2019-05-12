@@ -12,7 +12,7 @@ mount -o remount,rw /
 
 dialogo=`which dialog`
 DIR_PH="/home/pi/menu"
-BLINK_DIR="/home/pi/blynk"
+BLINK_DIR="/home/pi/Blynk"
 LOG="/home/pi/menu/ph.log"
 WIFI_TARGET='/etc/wpa_supplicant/wpa_supplicant.conf'
 GIT_MENU_URL="https://github.com/DjamesSuhanko/menuConfig.git" 
