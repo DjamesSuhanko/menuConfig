@@ -136,7 +136,7 @@ WiFi(){
 
 runBroker(){
     log "Executando broker"
-    [ -f /home/pi/Blynk/mail.properties ] || {
+    [ -f $BLINK_DIR/mail.properties ] || {
         $dialogo --stdout --msgbox "Configure o email primeiro" 0 0
         return
     }
