@@ -152,7 +152,7 @@ runBroker(){
     mkdir -p $BLINK_DIR/data
    
     [ -f $BLYNK_SERVER ] || {
-        $dialogo --stdout --title "A N A L I S A R" --msgbox "server-0.41.5 nao encontrado. Abortando..." 0 0
+        $dialogo --stdout --title "A N A L I S A R" --msgbox "$BLYNK_SERVER nao encontrado. Abortando..." 0 0
         return
     }
 
