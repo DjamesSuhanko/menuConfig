@@ -16,7 +16,7 @@ BLINK_DIR="/home/pi/Blynk"
 LOG="/home/pi/menu/ph.log"
 WIFI_TARGET='/etc/wpa_supplicant/wpa_supplicant.conf'
 GIT_MENU_URL="https://github.com/DjamesSuhanko/menuConfig.git" 
-BLYNK_SERVER="$BLYNK_DIR/server-0.41.5-java8.jar"
+BLYNK_SERVER="$(echo -n $BLYNK_DIR)/server-0.41.5-java8.jar"
 
 export DIALOGRC=$DIR_PH/theme.cfg
 mkdir -p $DIR_PH
