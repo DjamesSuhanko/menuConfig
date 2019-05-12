@@ -16,6 +16,7 @@ BLINK_DIR="/home/pi/blynk"
 LOG="/home/pi/menu/ph.log"
 WIFI_TARGET='/etc/wpa_supplicant/wpa_supplicant.conf'
 GIT_MENU_URL="https://github.com/DjamesSuhanko/menuConfig.git" 
+BLYNK_SERVER="$BLYNK_DIR/server-0.41.5-java8.jar"
 
 export DIALOGRC=$DIR_PH/theme.cfg
 mkdir -p $DIR_PH
@@ -144,13 +145,18 @@ runBroker(){
     [ $ALREADY_RUNNING -gt 0 ] && {
         log "Broker ja rodando"
         $dialogo --stdout --title "A T E N C A O" --msgbox "Ja existe uma instancia. Reiniciar processo?" 0 0
-	[ $? -eq 0 ] || return 
+	    [ $? -eq 0 ] || return 
     }
-    log "Reiniciando broker"
+    log "Iniciando broker"
     kill -9 $(pgrep java)
     mkdir -p $BLINK_DIR/data
-    
-    java -jar $BLINK_SERVER -dataFolder $BLYNK_DIR/data 1>&2- &
+   
+    [ -f $BLYNK_SERVER ] || {
+        $dialogo --stdout --title "A N A L I S A R" --msgbox "server-0.41.5 nao encontrado. Abortando..." 0 0
+        return
+    }
+
+    java -jar $BLYNK_SERVER -dataFolder $BLYNK_DIR/data 1>&2- &
     for i in $(seq 0 5 100) ; do sleep 1; echo $i | $dialogo --stdout --gauge "Aguarde" 10 70 0; done
 
 }
