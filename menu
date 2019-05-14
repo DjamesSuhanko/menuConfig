@@ -174,9 +174,9 @@ openSSH(){
 
     ST=`echo $DO_THAT|wc -c`
     if [ $ST -eq 4 ]; then
-	    log"Parando SSH"
+	    log "Parando SSH"
     else
-	    log"Iniciando SSH"
+	    log "Iniciando SSH"
     fi
 
     service ssh $DO_THAT
