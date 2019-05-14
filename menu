@@ -166,7 +166,7 @@ openSSH(){
     DO_THAT="start"
     SSH_MSG="iniciado"
 
-    SSH_IS_RUNNING=`netstat -naut|awk '{print $4}'|egrep ':22$'|wc l`
+    SSH_IS_RUNNING=`netstat -naut|awk '{print $4}'|egrep ':22$'|wc -l`
     [ $SSH_IS_RUNNING -gt 0 ] && {
        DO_THAT="stop"
        SSH_MSG="parado"
