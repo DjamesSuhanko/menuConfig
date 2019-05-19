@@ -23,6 +23,11 @@ mkdir -p $DIR_PH
 
 echo "[" $(date) "] Configurador iniciado " >>$LOG
 
+getMAC(){
+    MAC_ADDR=`ifconfig wlan0|egrep ether| awk '{print $2}'`
+    $dialogo --stdout --title "MAC address" --msgbox "$MAC_ADDR" 0 0
+}
+
 brokerStatus(){
     MESSAGE="Broker em execucao"
 
