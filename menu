@@ -279,6 +279,7 @@ while true; do
     remote 'Para/Inicia conexao remota' \
     publicIP 'Exibe o IP publico' \
     localIP 'Exibe o IP local' \
+    MAC 'Mostra o MAC para poder configurar no roteador' \
     senhaConf 'Troca a senha do configurador ' \
     senhaPi 'Trocar a senha do usuario Pi' \
     logs 'Exibe os logs' \
@@ -314,6 +315,7 @@ while true; do
         reiniciar) shutdown -r now ;;
         desligar) shutdown -h now ;;
         maxSys) resizeFS ;;
+        MAC) getMAC ;;
         ajuda) helpMe ;;
 	mail) emailConfig ;;
 	update) menuUpdate ;; 
