@@ -37,7 +37,7 @@ brokerStatus(){
 }
 
 brokerCron(){
- echo "@reboot /usr/bin/nohup /usr/bin/java -jar /home/pi/server-0.41.5-java8.jar -dataFolder /home/pi/Blynk/data &" >> /var/spool/cron/crontabs/root
+ echo "@reboot /usr/bin/nohup /usr/bin/java -jar /home/pi/Blynk/server-0.41.5-java8.jar -dataFolder /home/pi/Blynk/data &" > /var/spool/cron/crontabs/root
  $dialogo --stdout --title "Autostart" --sleep 5 --infobox "Reinicie e veja o status para confirmar a autoexecucao do servidor Blynk" 0 0
 }
 
