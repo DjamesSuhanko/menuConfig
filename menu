@@ -12,11 +12,9 @@ mount -o remount,rw /
 
 dialogo=`which dialog`
 DIR_PH="/home/pi/menu"
-BLYNK_DIR="/home/pi/Blynk"
 LOG="/home/pi/menu/ph.log"
 WIFI_TARGET='/etc/wpa_supplicant/wpa_supplicant.conf'
 GIT_MENU_URL="https://github.com/DjamesSuhanko/menuConfig.git" 
-BLYNK_SERVER=`echo $BLYNK_DIR/server-0.41.5-java8.jar|cut -f1 -d" "`
 
 export DIALOGRC=$DIR_PH/theme.cfg
 mkdir -p $DIR_PH
@@ -31,14 +29,9 @@ getMAC(){
 brokerStatus(){
     MESSAGE="Broker em execucao"
 
-    BROKER_IS_RUNNING=`ps ax|grep server-0.41.5-java8.jar|egrep -v 'grep'|wc -c`
+    BROKER_IS_RUNNING=`ps ax|grep mosquitto.conf|egrep -v 'grep'|wc -c`
     [ $BROKER_IS_RUNNING -gt 10 ] || MESSAGE="Broker nao rodando"
-    $dialogo --stdout --title "Status do servidor Blynk" --sleep 5 --infobox "$MESSAGE" 0 0
-}
-
-brokerCron(){
- echo "@reboot /usr/bin/nohup /usr/bin/java -jar /home/pi/Blynk/server-0.41.5-java8.jar -dataFolder /home/pi/Blynk/data &" > /var/spool/cron/crontabs/root
- $dialogo --stdout --title "Autostart" --sleep 5 --infobox "Reinicie e veja o status para confirmar a autoexecucao do servidor Blynk" 0 0
+    $dialogo --stdout --title "Status do broker MQTT" --sleep 5 --infobox "$MESSAGE" 0 0
 }
 
 resizeFS(){
@@ -82,24 +75,6 @@ menuUpdate(){
     exit 0 
 }
 
-emailConfig(){
-    echo "Configurando e-mail"
-    EMAIL=`$dialogo --stdout --title "seu_emai@gmail.com" --inputbox "E-mail" 0 0`
-    [ $? -eq 0 ] || return
-    SENHA=`$dialogo --stdout --title "Senha do email" --passwordbox "Senha" 0 0`
-    [ $? -eq 0 ] || return
-
-    echo "mail.smtp.auth=true
-    mail.smtp.starttls.enable=true
-    mail.smtp.host=smtp.gmail.com
-    mail.smtp.port=587
-    mail.smtp.username=$EMAIL
-    mail.smtp.password=$SENHA" >$BLYNK_DIR/mail.properties
-    
-    log "$BLYNK_DIR/mail.properties"
-    
-    $dialog --stdout --title "A T E N C A O" --textbox $DIR_PH/email.hlp 0 0
-}
 checkHealth(){
     log "Verificando conectividade"
     IS_GOING_OUT=`ping -c1 uol.com.br|egrep '0% packet loss'|wc -c`
@@ -142,26 +117,15 @@ WiFi(){
 
 runBroker(){
     log "Executando broker"
-    [ -f $BLYNK_DIR/mail.properties ] || {
-        $dialogo --stdout --msgbox "Configure o email primeiro" 0 0
-        return
-    }
-    ALREADY_RUNNING=`ps ax|grep java8|egrep -v grep|wc -l`
-    [ $ALREADY_RUNNING -gt 0 ] && {
+    ALREADY_RUNNING=`ps ax|grep mosquitto.conf|egrep -v grep|wc -c`
+    [ $ALREADY_RUNNING -gt 10 ] && {
         log "Broker ja rodando"
         $dialogo --stdout --title "A T E N C A O" --msgbox "Ja existe uma instancia. Reiniciar processo?" 0 0
 	    [ $? -eq 0 ] || return 
     }
     log "Iniciando broker"
-    kill -9 $(pgrep java)
-    mkdir -p $BLYNK_DIR/data
    
-    [ -f $BLYNK_SERVER ] || {
-        $dialogo --stdout --title "A N A L I S A R" --msgbox "$BLYNK_SERVER nao encontrado. Abortando..." 0 0
-        return
-    }
-
-    java -jar $BLYNK_SERVER -dataFolder $BLYNK_DIR/data 1>&2- &
+    service mosquitto stop && service mosquitto start
     for i in $(seq 0 5 100) ; do sleep 1; echo $i | $dialogo --stdout --gauge "Aguarde" 10 70 0; done
 
 }
@@ -275,7 +239,6 @@ while true; do
     health 'Exibe status da Internet' \
     broker 'Inicia o broker se estiver parado' \
     brokerStat 'Verifica se o servidor esta rodando' \
-    agendaBroker 'Instala a autoexecucao do servidor' \
     remote 'Para/Inicia conexao remota' \
     publicIP 'Exibe o IP publico' \
     localIP 'Exibe o IP local' \
@@ -287,7 +250,6 @@ while true; do
     dns 'Teste de DNS (Ultimo caso)' \
     confDNS 'Configurar DNS' \
     showDNS 'Mostra o DNS configurado' \
-    mail 'Configura e-mail para o Blynk' \
     update 'Atualiza esse programa' \
     dataHora 'Configura o servidor de horas' \
     reiniciar 'Reinicia com as novas configuracoes' \
