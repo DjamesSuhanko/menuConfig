@@ -23,6 +23,34 @@ mkdir -p $DIR_PH
 
 echo "[" $(date) "] Configurador iniciado " >>$LOG
 
+serviceActivate(){
+    $dialogo --stdout --yesno "Deseja instalar o servico automatico?" 0 0
+    [ $? -lt 1 ] || return
+
+    echo "[Unit]
+Description=Start devices monitoring on MQTT
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/pi/atuadores.sh
+RemainAfterExit=true
+StandardOutput=journal
+User=root
+
+[Install]
+WantedBy=multi-user.target
+" >/etc/systemd/system/devicesload.service
+    cd /etc/systemd/system
+    systemctl enable devicesload.service
+    $dialogo --stdout --title "Concluido" --yesno "Deseja iniciar a task agora?" 0 0
+    [ $? -gt 0 ] && return
+    service devicesload start
+
+    $dialogo --stdout --msgbox "Repare se ha algum erro no status em seguida. Apos status, use [Enter]" 0 0 
+    service devicesload status
+}
+
 makeDevice(){
     NEW_DEVICE_NAME=`$dialogo --stdout --inputbox "Novo dispositivo" 0 0`
     [ $? -gt 0 ] && return
@@ -265,6 +293,7 @@ while true; do
     update 'Atualiza esse programa' \
     dataHora 'Configura o servidor de horas' \
     newRelay 'Adiciona um novo dispositivo rele' \
+    autoStart 'Auto inicia o servico de controle dos reles' \
     reiniciar 'Reinicia com as novas configuracoes' \
     desligar 'Desliga o sistema (aprox. 35 segundos)' \
     maxSys 'Maximizar espaco do sistema' \
@@ -292,6 +321,7 @@ while true; do
         maxSys) resizeFS ;;
         MAC) getMAC ;;
         newRelay) makeDevice ;;
+        autoStart) serviceActivate ;;
         ajuda) helpMe ;;
 	mail) emailConfig ;;
 	update) menuUpdate ;; 
