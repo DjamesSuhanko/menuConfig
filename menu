@@ -15,7 +15,7 @@ DIR_PH="/home/pi/menu"
 LOG="/home/pi/menu/ph.log"
 WIFI_TARGET='/etc/wpa_supplicant/wpa_supplicant.conf'
 GIT_MENU_URL="https://github.com/DjamesSuhanko/menuConfig.git" 
-DEVICE_SKELETRON="/home/pi/devices/skeletron.py"
+DEVICE_SKELETRON="/home/pi/devices/skeletron/skeletron.py"
 DEVICE_BASE_DIR="/home/pi/devices"
 
 export DIALOGRC=$DIR_PH/theme.cfg
