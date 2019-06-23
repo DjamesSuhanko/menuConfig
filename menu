@@ -15,11 +15,23 @@ DIR_PH="/home/pi/menu"
 LOG="/home/pi/menu/ph.log"
 WIFI_TARGET='/etc/wpa_supplicant/wpa_supplicant.conf'
 GIT_MENU_URL="https://github.com/DjamesSuhanko/menuConfig.git" 
+DEVICE_SKELETRON="/home/pi/devices/skeletron.py"
+DEVICE_BASE_DIR="/home/pi/devices"
 
 export DIALOGRC=$DIR_PH/theme.cfg
 mkdir -p $DIR_PH
 
 echo "[" $(date) "] Configurador iniciado " >>$LOG
+
+makeDevice(){
+    NEW_DEVICE_NAME=`$dialogo --stdout --inputbox "Novo dispositivo" --title "Digite o nome identificador" 0 0`
+    [ $? -gt 0 ] && return
+    mkdir -p $DEVICE_BASE_DIR/$NEW_DEVICE_NAME
+    cp $DEVICE_SKELETRON $DEVICE_BASE_DIR/$NEW_DEVICE_NAME/$NEW_DEVICE_NAME.py 
+    $dialogo --stdout --msgbox "Agora crie o topico para esse dispositivo" 0 0 
+    nano /etc/mosquitto/jp.acl
+    $dialogo --stdout --msgbox "Se precisar alterar, o arquivo esta em /etc/mosquitto/jp.acl" 0 0 
+}
 
 getMAC(){
     MAC_ADDR=`ifconfig wlan0|egrep ether| awk '{print $2}'`
@@ -252,6 +264,7 @@ while true; do
     showDNS 'Mostra o DNS configurado' \
     update 'Atualiza esse programa' \
     dataHora 'Configura o servidor de horas' \
+    newRelay 'Adiciona um novo dispositivo rele' \
     reiniciar 'Reinicia com as novas configuracoes' \
     desligar 'Desliga o sistema (aprox. 35 segundos)' \
     maxSys 'Maximizar espaco do sistema' \
@@ -278,6 +291,7 @@ while true; do
         desligar) shutdown -h now ;;
         maxSys) resizeFS ;;
         MAC) getMAC ;;
+        newRelay) makeDevice ;;
         ajuda) helpMe ;;
 	mail) emailConfig ;;
 	update) menuUpdate ;; 
