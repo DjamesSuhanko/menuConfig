@@ -24,7 +24,7 @@ mkdir -p $DIR_PH
 echo "[" $(date) "] Configurador iniciado " >>$LOG
 
 makeDevice(){
-    NEW_DEVICE_NAME=`$dialogo --stdout --inputbox "Novo dispositivo" --title "Digite o nome identificador" 0 0`
+    NEW_DEVICE_NAME=`$dialogo --stdout --inputbox "Novo dispositivo" 0 0`
     [ $? -gt 0 ] && return
     mkdir -p $DEVICE_BASE_DIR/$NEW_DEVICE_NAME
     cp $DEVICE_SKELETRON $DEVICE_BASE_DIR/$NEW_DEVICE_NAME/$NEW_DEVICE_NAME.py 
