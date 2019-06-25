@@ -23,6 +23,34 @@ mkdir -p $DIR_PH
 
 echo "[" $(date) "] Configurador iniciado " >>$LOG
 
+deleteDevice(){
+    [ -d $DEVICE_BASE_DIR ] || {
+        $dialogo --stdout --title "$DEVICE_BASE_DIR" --msgbox 'Verifique se o diretorio existe' 0 0
+        return
+    }
+
+    DIR_TO_DELETE=`dialog --stdout --title 'Excluir dispositivo (Navegar: ^v  Marcar: [SPACE_BAR]) Ok/Cancel: [TAB]' --radiolist 'Selecione um dispositivo a excluir ou cancelar' 0 0 0 $(ls -d $DEVICE_BASE_DIR/*/|egrep -v skel|while read line; do basename $line; basename $line; echo off; done)`
+
+    [ $? -gt 0 ] && {
+        $dialogo --stdout --msgbox "Cancelado pelo usuario." 0 0
+        return
+    }
+
+    SIZE_OF_DIR_TO_DELETE=`echo $DIR_TO_DELETE|egrep -v 'devices|pi|home'|wc -c`
+    [ $SIZE_OF_DIR_TO_DELETE -lt 3 ] &&{
+        $dialogo --stdout --msgbox "Retorno vazio. Para evitar erros, o processo sera abortado." 0 0
+        return
+    }
+
+    $dialogo --stdout --title "Remover $DIR_TO_DELETE ?" --yesno "O dispositivo $DIR_TO_DELETE sera excluido. Confirmado?" 0 0 
+    
+    [ $? -gt 0 ] && {
+        $dialogo --stdout --msgbox "Ok, nada sera feito. Operacao abortada." 0 0
+        return
+    }
+    rm -rf $DEVICE_BASE_DIR/$DIR_TO_DELETE
+}
+
 makeDevice(){
     NEW_DEVICE_NAME=`$dialogo --stdout --inputbox "Novo dispositivo" 0 0`
     [ $? -gt 0 ] && return
@@ -264,7 +292,8 @@ while true; do
     showDNS 'Mostra o DNS configurado' \
     update 'Atualiza esse programa' \
     dataHora 'Configura o servidor de horas' \
-    newRelay 'Adiciona um novo dispositivo rele' \
+    newRelay 'Cadastra novo dispositivo rele' \
+    removeRelay 'Remove um dispositivo rele cadastrado' \
     reiniciar 'Reinicia com as novas configuracoes' \
     desligar 'Desliga o sistema (aprox. 35 segundos)' \
     maxSys 'Maximizar espaco do sistema' \
@@ -292,6 +321,7 @@ while true; do
         maxSys) resizeFS ;;
         MAC) getMAC ;;
         newRelay) makeDevice ;;
+        removeRelay) deleteDevice ;;
         ajuda) helpMe ;;
 	mail) emailConfig ;;
 	update) menuUpdate ;; 
