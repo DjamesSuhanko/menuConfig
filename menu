@@ -49,6 +49,12 @@ deleteDevice(){
         return
     }
     rm -rf $DEVICE_BASE_DIR/$DIR_TO_DELETE
+
+    $dialogo --stdout --yesno "Deseja remover topico relacionado?" 0 0
+    [ $? -gt 0 ] && return
+    egrep -v $DIR_TO_DELETE /etc/mosquitto/jp.acl >/etc/mosquitto/jp.acl-new
+    mv /etc/mosquitto/jp.acl-new /etc/mosquitto/jp.acl
+    $dialogo --stdout --msgbox "O topico deve ser o mesmo nome do dispositivo. Nesse caso, topico excluido com sucesso." 0 0 
 }
 
 makeDevice(){
